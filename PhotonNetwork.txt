@@ -1,0 +1,82 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NetworkManager : Photon.PunBehaviour {
+
+
+	private const string roomName = "RoomName";
+	private RoomInfo[] roomsList;
+	public List<PhotonPlayer> currentPlayersInRoom = new List<PhotonPlayer> ();
+
+	public string PlayerName = "My Name";
+
+
+	// Use this for initialization
+	void Start () {
+		
+		PhotonNetwork.logLevel = PhotonLogLevel.ErrorsOnly;
+		PhotonNetwork.ConnectUsingSettings ("0.1");
+
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		
+	}
+
+
+
+	void OnGUI() { // kirjoita aina OnGUI, muuten unity paskantaa itsensä
+		GUI.contentColor = Color.red;
+		GUILayout.Label (PhotonNetwork.connectionStateDetailed.ToString ());
+
+		if (PhotonNetwork.room == null) {
+
+			PlayerName = GUI.TextArea (new Rect(200, 100, 200, 30), PlayerName);
+
+			// luodaan huone
+			if (GUI.Button(new Rect(200, 130, 200, 100), "Start Server")) {
+				// luo uniikin nimen Guidilla
+				PhotonNetwork.CreateRoom (roomName + System.Guid.NewGuid().ToString());
+			}
+
+			if (roomsList != null) {
+				for (int i = 0; i < roomsList.Length; i++) {
+					// luodaan jokaisesta huoneesta nappi
+					if (GUI.Button(new Rect(200, 240+(110*i), 200, 100), "Join " + roomsList[i].Name)) {
+						PhotonNetwork.JoinRoom (roomsList[i].Name);
+					}
+				}
+			}
+		}
+	}
+
+	void OnRecievedRoomListUpdate(){
+		// pitää huonelistausta ajan tasalla
+		roomsList = PhotonNetwork.GetRoomList ();
+	}
+
+	void ConnectedToMaster(){
+
+	}
+
+	public override void OnJoinedLobby(){
+		Debug.Log ("Lobyssa ollaan");
+	}
+
+	void OnJoinedRoom(){
+		Debug.Log ("Huoneessa ollaan ja pidetään orgiat");
+	}
+
+	void OnPlayerDisconnect(NetworkPlayer other){
+
+	}
+
+	void OnCreatedRoom(){
+		// Tänne juttui jos tehään oma huone
+
+
+	}
+
+}
